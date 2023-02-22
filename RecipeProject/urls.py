@@ -15,15 +15,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from recipe.views import RecipeCategoryAPIView, ProductCategoryApiView, RecipeApiView, ProductApiView
+from recipe.views import RecipeCategoryAPIView, ProductCategoryApiView, RecipeApiView, ProductApiView,IngredientApiView
 from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/recipecategories/', RecipeCategoryAPIView.as_view()),
-    path('api/v1/productcategories/', ProductCategoryApiView.as_view()),
     path('api/v1/recipes/', RecipeApiView.as_view()),
+    path('api/v1/recipes/<int:pk>/', RecipeApiView.as_view()),
+    path('api/v1/productcategories/', ProductCategoryApiView.as_view()),
     path('api/v1/products/', ProductApiView.as_view()),
-    # path('api/v1/ingredient/', IngredientApiView.as_view()),
+    path('api/v1/products/<int:pk>/', ProductApiView.as_view()),
+    path('api/v1/ingredient/', IngredientApiView.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
