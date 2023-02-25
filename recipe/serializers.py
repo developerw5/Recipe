@@ -22,18 +22,16 @@ class ProductSerializers(serializers.ModelSerializer):
         model = Product
         fields = "__all__"
 
-
-class RecipeSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = Recipe
-        fields = "__all__"
-
-
 class IngredientSerializers(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = "__all__"
 
+class RecipeSerializers(serializers.ModelSerializer):
+    ingredients = IngredientSerializers(many=True,read_only=True)
+    class Meta:
+        model = Recipe
+        fields = [ "id", "name", "image", "description", "category", "ingredients"]
 
 class IngredientWithNameSerializers(serializers.Serializer):
     name = serializers.CharField()

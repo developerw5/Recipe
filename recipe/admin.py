@@ -11,4 +11,4 @@ admin.site.register(Recipe)
 
 # @admin.register(Recipe)
 # class RecipeAdmin(admin.ModelAdmin):
-#     filter_horizontal = ['ingredient']
+#     filter_horizontal = ['ingredients']

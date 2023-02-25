@@ -15,7 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from recipe.views import RecipeCategoryViewsSet, ProductCategoryViewsSet, ProductViewSet, SimpleRecipeViewSet, RecipeViewSet
+from recipe import views
+from recipe.views import RecipeCategoryViewsSet, ProductCategoryViewsSet, ProductViewSet, SimpleRecipeViewSet, RecipeViewSet,IngredientViewSet,SearchApiView
 from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework import routers
@@ -26,9 +27,13 @@ router.register(r'productcategories', ProductCategoryViewsSet, basename="product
 router.register(r'products', ProductViewSet, basename="products")
 router.register(r'simple', SimpleRecipeViewSet, basename="simple")
 router.register(r'recipes',RecipeViewSet, basename="recipes")
+router.register(r'ingredeints', IngredientViewSet, basename='ingredients')
+# router.register(r'search', SearchViewSet, basename='search')
 urlpatterns = [
                   path('admin/', admin.site.urls),
                   path('', include(router.urls)),
+                  path('search/',SearchApiView.as_view(), name="search")
+                  # path(r'search/', views.search, name="search")
                   # path('api/v1/recipecategories/', RecipeCategoryAPIView.as_view()),
                   # path('api/v1/recipes/', RecipeApiView.as_view()),
                   # path('api/v1/recipes/<int:pk>/', RecipeApiView.as_view()),
