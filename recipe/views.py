@@ -8,7 +8,7 @@ from .models import RecipeCategory, ProductCategory, Recipe, Product, Ingredient
     IngredientWithName
 from .serializers import RecipeSerializers, RecipeCategorySerializers, IngredientSerializers, ProductSerializers, \
     ProductCategorySerializers, SimpleRecipeSerializers, MRecipeSerializers, IngredientWithNameSerializers
-from rest_framework.decorators import action
+
 
 class RecipeCategoryViewsSet(viewsets.mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = RecipeCategory.objects.all()
@@ -22,10 +22,20 @@ class ProductCategoryViewsSet(viewsets.mixins.ListModelMixin, viewsets.GenericVi
     serializer_class = ProductCategorySerializers
 
 
-class ProductViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Product.objects.all()
+# class ProductViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = Product.objects.all()
+#
+#     serializer_class = ProductSerializers
 
-    serializer_class = ProductSerializers
+class ProductViewSet(viewsets.ViewSet):
+    def list(self, request):
+        queryset = Product.objects.all()
+        serializer = ProductSerializers(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = Product.objects.filter(category=pk)
+        return Response(ProductSerializers(queryset, many=True).data)
 
 
 class IngredientViewSet(viewsets.mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -55,7 +65,7 @@ class RecipeViewSet(viewsets.ViewSet):
             carbohydrate = 0
             protein = 0
             for ingredient in ingredients:
-                print(type(ingredient))
+                # print(type(ingredient))
                 product = Product.objects.filter(id=ingredient["product_id"]).values()[0]
                 kkal += product["kkal"]
                 protein += product["protein"]
@@ -72,7 +82,7 @@ class RecipeViewSet(viewsets.ViewSet):
                     fat=fat,
                     carbohydrate=carbohydrate,
                     protein=protein,
-                    kbju=kkal*500/100,
+                    kbju=kkal * 500 / 100,
                     description=recipe["description"],
                     ingredients=IngredientWithNameSerializers(result_ingredients, many=True).data
                 )
@@ -82,48 +92,46 @@ class RecipeViewSet(viewsets.ViewSet):
     def list(self, request):
         recipes = Recipe.objects.all().values()
         print(type(recipes))
-        return Response({"recipes": MRecipeSerializers(self.handle(recipes), many=True).data})
+        return Response(MRecipeSerializers(self.handle(recipes), many=True).data)
 
     def retrieve(self, request, pk=None):
         print(pk)
-        recipe_query_set = Recipe.objects.filter(pk=pk).values()
+        recipe_query_set = Recipe.objects.filter(category_id=pk).values()
         print(recipe_query_set)
         recipe_dict = recipe_query_set[0]
         print(type(recipe_dict))
         print(recipe_dict)
-        ingredients = Ingredient.objects.filter(recipe_id=recipe_dict["id"]).values()
-        result_ingredients = []
-        kkal = 0
-        fat = 0
-        carbohydrate = 0
-        protein = 0
-        for ingredient in ingredients:
-            print(type(ingredient))
-            product = Product.objects.filter(id=ingredient["product_id"]).values()[0]
-            kkal += product["kkal"]
-            protein += product["protein"]
-            carbohydrate += product["carbohydrate"]
-            fat += product["fat"]
-            result_ingredients.append(IngredientWithName(product["name"], ingredient["count"]))
+        all = []
+        for recipe in recipe_query_set:
+            ingredients = Ingredient.objects.filter(recipe_id=recipe["id"]).values()
+            result_ingredients = []
+            kkal = 0
+            fat = 0
+            carbohydrate = 0
+            protein = 0
+            for ingredient in ingredients:
+                # print(type(ingredient))
+                product = Product.objects.filter(id=ingredient["product_id"]).values()[0]
+                kkal += product["kkal"]
+                protein += product["protein"]
+                carbohydrate += product["carbohydrate"]
+                fat += product["fat"]
+                result_ingredients.append(IngredientWithName(product["name"], ingredient["count"]))
 
-        result_recipe = MRecipe(
-            category=recipe_dict["category_id"],
-            name=recipe_dict["name"],
-            img="media/"+recipe_dict["image"],
-            kkal=kkal,
-            fat=fat,
-            carbohydrate=carbohydrate,
-            protein=protein,
-            kbju=kkal*500/100,
-            description=recipe_dict["description"],
-            ingredients=IngredientWithNameSerializers(result_ingredients, many=True).data
-        )
+            all.append(MRecipe(
+                category=recipe["category_id"],
+                name=recipe["name"],
+                img="media/" + recipe["image"],
+                kkal=kkal,
+                fat=fat,
+                carbohydrate=carbohydrate,
+                protein=protein,
+                kbju=kkal * 500 / 100,
+                description=recipe_dict["description"],
+                ingredients=IngredientWithNameSerializers(result_ingredients, many=True).data))
+
         print(type(recipe_query_set))
-        return Response({"recipe": MRecipeSerializers(result_recipe).data})
-        # else:
-        #     print("elses")
-        #     return Response({"recipe": []})
-
+        return Response(MRecipeSerializers(all,many=True).data)
 
 
 class SearchApiView(APIView):
@@ -159,7 +167,7 @@ class SearchApiView(APIView):
                         fat=fat,
                         carbohydrate=carbohydrate,
                         protein=protein,
-                        kbju=kkal*500/100,
+                        kbju=kkal * 500 / 100,
                         description=recipe["description"],
                         ingredients=IngredientWithNameSerializers(result_ingredients, many=True).data
                     )
@@ -200,12 +208,12 @@ class SearchApiView(APIView):
                         fat=fat,
                         carbohydrate=carbohydrate,
                         protein=protein,
-                        kbju=kkal*500/100,
+                        kbju=kkal * 500 / 100,
                         description=recipe["description"],
                         ingredients=IngredientWithNameSerializers(result_ingredients, many=True).data
                     )
                 )
-            return Response({"recipes": MRecipeSerializers(result_recipes,many=True).data})
+            return Response({"recipes": MRecipeSerializers(result_recipes, many=True).data})
 
         except:
             print("An except occured ")
@@ -215,11 +223,11 @@ class SearchApiView(APIView):
             name = request.query_params["product"]
             modified_recipes = self.handle(recipes, name)
             print(modified_recipes)
-            return Response({"products": MRecipeSerializers(modified_recipes,many=True).data})
+            return Response({"products": MRecipeSerializers(modified_recipes, many=True).data})
         except:
             print("An except occured")
 
-        return  Response({"error": "wrong paramters"})
+        return Response({"error": "wrong paramters"})
 
 
 class SimpleRecipeViewSet(viewsets.ViewSet):
