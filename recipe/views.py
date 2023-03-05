@@ -67,11 +67,12 @@ class RecipeViewSet(viewsets.ViewSet):
             for ingredient in ingredients:
                 # print(type(ingredient))
                 product = Product.objects.filter(id=ingredient["product_id"]).values()[0]
-                kkal += product["kkal"]
-                protein += product["protein"]
-                carbohydrate += product["carbohydrate"]
-                fat += product["fat"]
-                result_ingredients.append(IngredientWithName(product["name"], ingredient["count"]))
+                count = ingredient["count"]
+                kkal +=(product["kkal"]*count/100) 
+                protein += (product["protein"]*count/100) 
+                carbohydrate += (product["carbohydrate"]*count/100)
+                fat += (product["fat"]*count/100)
+                result_ingredients.append(IngredientWithName(product["name"], count))
 
             result_recipes.append(
                 MRecipe(
@@ -82,7 +83,7 @@ class RecipeViewSet(viewsets.ViewSet):
                     fat=fat,
                     carbohydrate=carbohydrate,
                     protein=protein,
-                    kbju=kkal * 500 / 100,
+                    kbju=kkal,
                     description=recipe["description"],
                     ingredients=IngredientWithNameSerializers(result_ingredients, many=True).data
                 )
@@ -109,25 +110,26 @@ class RecipeViewSet(viewsets.ViewSet):
             fat = 0
             carbohydrate = 0
             protein = 0
+            category_name = RecipeCategory.objects.filter(id=recipe["category_id"]).values()[0]["name"]
             for ingredient in ingredients:
-                # print(type(ingredient))
                 product = Product.objects.filter(id=ingredient["product_id"]).values()[0]
-                kkal += product["kkal"]
-                protein += product["protein"]
-                carbohydrate += product["carbohydrate"]
-                fat += product["fat"]
-                result_ingredients.append(IngredientWithName(product["name"], ingredient["count"]))
+                count = ingredient["count"]
+                kkal += (product["kkal"]*count/100)
+                protein += (product["protein"]*count/100)
+                carbohydrate +=(product["carbohydrate"]*count/100)
+                fat += (product["fat"]*count/100)
+                result_ingredients.append(IngredientWithName(product["name"], count))
 
             all.append(MRecipe(
-                category=recipe["category_id"],
+                category=category_name,
                 name=recipe["name"],
                 img="media/" + recipe["image"],
                 kkal=kkal,
                 fat=fat,
                 carbohydrate=carbohydrate,
                 protein=protein,
-                kbju=kkal * 500 / 100,
-                description=recipe_dict["description"],
+                kbju=kkal,
+                description=recipe["description"],
                 ingredients=IngredientWithNameSerializers(result_ingredients, many=True).data))
 
         print(type(recipe_query_set))
@@ -149,13 +151,14 @@ class SearchApiView(APIView):
             have = False
             for ingredient in ingredients:
                 product = Product.objects.filter(id=ingredient["product_id"]).values()[0]
-                kkal += product["kkal"]
-                protein += product["protein"]
-                carbohydrate += product["carbohydrate"]
-                fat += product["fat"]
+                count = ingredient["count"]
+                kkal += (product["kkal"]*count/100)
+                protein += (product["protein"]*count/100)
+                carbohydrate += (product["carbohydrate"]*count/100)
+                fat += (product["fat"]*count/100)
                 if product["name"] == product_name:
                     have = True
-                result_ingredients.append(IngredientWithName(product["name"], ingredient["count"]))
+                result_ingredients.append(IngredientWithName(product["name"], count))
 
             if have:
                 result_recipes.append(
@@ -167,7 +170,7 @@ class SearchApiView(APIView):
                         fat=fat,
                         carbohydrate=carbohydrate,
                         protein=protein,
-                        kbju=kkal * 500 / 100,
+                        kbju=kkal,
                         description=recipe["description"],
                         ingredients=IngredientWithNameSerializers(result_ingredients, many=True).data
                     )
@@ -193,11 +196,12 @@ class SearchApiView(APIView):
                 for ingredient in ingredients:
                     print(type(ingredient))
                     product = Product.objects.filter(id=ingredient["product_id"]).first()
-                    kkal += product["kkal"]
-                    protein += product["protein"]
-                    carbohydrate += product["carbohydrate"]
-                    fat += product["fat"]
-                    result_ingredients.append(IngredientWithName(product["name"], ingredient["count"]))
+                    count = ingredient["count"]
+                    kkal += (product["kkal"]*count/100)
+                    protein += (product["protein"]*count/100)
+                    carbohydrate += (product["carbohydrate"]*count/100)
+                    fat += (product["fat"]*count/100)
+                    result_ingredients.append(IngredientWithName(product["name"], count))
 
                 result_recipes.append(
                     MRecipe(
@@ -208,7 +212,7 @@ class SearchApiView(APIView):
                         fat=fat,
                         carbohydrate=carbohydrate,
                         protein=protein,
-                        kbju=kkal * 500 / 100,
+                        kbju=kkal,
                         description=recipe["description"],
                         ingredients=IngredientWithNameSerializers(result_ingredients, many=True).data
                     )
