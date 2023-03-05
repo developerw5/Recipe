@@ -37,7 +37,7 @@ class RecipeUtil:
             kbju = kbjuAndIngredientWithName.kbju
             result_recipes.append(
                 MRecipe(
-                    category=recipe["category_id"],
+                    category=RecipeCategory.objects.filter(id=recipe["category_id"]).values()[0]["name"],
                     name=recipe["name"],
                     img=recipe["image"],
                     kkal=kbju.kkal,
@@ -126,7 +126,7 @@ class SearchApiView(APIView):
             if have:
                 result_recipes.append(
                     MRecipe(
-                        category=recipe["category_id"],
+                        category=RecipeCategory.objects.filter(id=recipe["category_id"]).values()[0]["name"],
                         name=recipe["name"],
                         img=recipe["image"],
                         kkal=kkal,
