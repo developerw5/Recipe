@@ -27,9 +27,10 @@ class RecipeCategory(models.Model):
 
         # change the imagefield value to be the newley modifed image value
         self.image = InMemoryUploadedFile(output, 'ImageField', "%s.jpg" % self.image.name.split('.')[0], 'image/jpeg',
-                                        sys.getsizeof(output), None)
+                                          sys.getsizeof(output), None)
 
         super(RecipeCategory, self).save()
+
     # def save(self, *args, **kwargs):
     #     new_image = self.reduce_image_size(self.image)
     #     self.profile_pic = new_image
@@ -65,6 +66,7 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+
 class Recipe(models.Model):
     category = models.ForeignKey(RecipeCategory, models.CASCADE, related_name="category")
     name = models.CharField(max_length=255)
@@ -74,8 +76,9 @@ class Recipe(models.Model):
     def __str__(self):
         return self.name
 
+
 class Ingredient(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="product",null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="product", null=True)
     recipe = models.ForeignKey(Recipe, models.CASCADE, null=True)
     count = models.FloatField(default=0)
 
@@ -83,8 +86,19 @@ class Ingredient(models.Model):
         return self.product.name
 
 
+class KBJU:
+
+    kkal = 0
+    fat = 0
+    carbohydrate = 0
+    protein = 0
 
 
+class KBJUAndIngredients:
+
+    def __init__(self, kbju, ingredientWithName):
+        self.kbju = kbju
+        self.ingredientWithName = ingredientWithName
 
 
 # class IngredientWithName(models.Model):
