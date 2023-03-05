@@ -147,7 +147,7 @@ class SearchApiView(APIView):
             name = request.query_params["recipe"]
             print(name)
             recipes = Recipe.objects.filter(name__icontains=name).values()
-            return Response({"recipes": MRecipeSerializers(RecipeUtil().get_recipes(recipes), many=True).data})
+            return Response(MRecipeSerializers(RecipeUtil().get_recipes(recipes), many=True).data)
         except:
             print("An except occured recipe")
         try:
@@ -155,7 +155,7 @@ class SearchApiView(APIView):
             name = request.query_params["product"]
             modified_recipes = self.handle(recipes, name)
             print(modified_recipes)
-            return Response({"products": MRecipeSerializers(modified_recipes, many=True).data})
+            return Response(MRecipeSerializers(modified_recipes, many=True).data)
         except:
             print("An except occured product")
 
